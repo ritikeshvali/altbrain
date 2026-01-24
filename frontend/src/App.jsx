@@ -158,9 +158,6 @@ function App() {
     );
   };
 
-  const [embeddings, setEmbeddings] = useState({});
-  const [showEmbeddings, setShowEmbeddings] = useState(false);
-
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       <div className="max-w-6xl mx-auto">
@@ -359,37 +356,6 @@ function App() {
                 </div>
               )}
 
-              {showEmbeddings && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                  <div className="bg-white rounded-lg p-6 max-w-2xl max-h-96 overflow-y-auto">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-bold">Embeddings: {embeddings.collection}</h2>
-                      <button
-                        onClick={() => setShowEmbeddings(false)}
-                        className="text-gray-500 hover:text-gray-700 text-2xl"
-                      >
-                        ×
-                      </button>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 mb-4">
-                      Total: {embeddings.total_embeddings} embeddings (1536 dimensions each)
-                    </p>
-                    
-                    <div className="space-y-3">
-                      {embeddings.embeddings?.map((emb, idx) => (
-                        <div key={idx} className="border rounded p-3 bg-gray-50">
-                          <p className="font-semibold text-sm">{idx + 1}. {emb.source}</p>
-                          <p className="text-xs text-gray-600 mb-2">{emb.document_snippet}...</p>
-                          <p className="text-xs font-mono bg-gray-100 p-2 rounded">
-                            Embedding: [{emb.embedding_sample.map(x => x.toFixed(4)).join(', ')}...]
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
