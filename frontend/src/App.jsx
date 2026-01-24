@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -38,14 +38,14 @@ function App() {
     }
   };
 
-  const loadAllDocuments = async () => {
+  const loadAllDocuments = useCallback(async () => {
     const allDocs = {};
     for (const coll of collections) {
       const docs = await fetchDocuments(coll.name);
       allDocs[coll.name] = docs;
     }
     setUploadedFiles(allDocs);
-  };
+  }, [collections]);
 
   const deleteDocument = async (collection, filename) => {
     if (!window.confirm(`Delete ${filename}?`)) return;
