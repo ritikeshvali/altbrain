@@ -66,7 +66,7 @@ function App() {
     if (activeTab === 'files') {
       loadAllDocuments();
     }
-  }, [activeTab, collections]);
+  }, [activeTab]);
 
   const handleFileSelect = (e) => {
     setSelectedFile(e.target.files[0]);
@@ -160,17 +160,6 @@ function App() {
 
   const [embeddings, setEmbeddings] = useState({});
   const [showEmbeddings, setShowEmbeddings] = useState(false);
-
-  const viewEmbeddings = async (collectionName) => {
-    try {
-      const res = await fetch(`${API_BASE}/embeddings/${collectionName}`);
-      const data = await res.json();
-      setEmbeddings(data);
-      setShowEmbeddings(true);
-    } catch (err) {
-      alert('Error loading embeddings: ' + err.message);
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
