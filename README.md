@@ -4,11 +4,6 @@ a RAG app that lets you ask questions about your documents using AI
 
 ## Quick Start
 
-### Prerequisites
-- Python 3.9+
-- Node.js 16+
-- OpenAI API key
-
 ### Setup
 
 **Backend:**
