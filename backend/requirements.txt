@@ -210,3 +210,4 @@ wrapt==2.0.1
 wsproto==1.2.0
 xarray==2025.6.1
 zipp==3.23.0
+uvicorn[standard]>=0.27.0
