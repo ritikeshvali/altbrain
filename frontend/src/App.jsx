@@ -66,7 +66,7 @@ function App() {
     if (activeTab === 'files') {
       loadAllDocuments();
     }
-  }, [activeTab]);
+  }, [activeTab, loadAllDocuments]);
 
   const handleFileSelect = (e) => {
     setSelectedFile(e.target.files[0]);
