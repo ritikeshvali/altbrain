@@ -174,33 +174,6 @@ async def delete_document(collection: str, filename: str = Query(...)):
     print(f"Deleted from SQLite: {deleted_rows} rows")
     return {"status": "deleted", "filename": filename}
 
-@app.get("/embeddings/{collection}")
-async def get_embeddings(collection: str):
-    """Get all embeddings for a collection"""
-    try:
-        coll = pka.chroma_client.get_collection(collection, embedding_function=pka.embedding_function)
-        data = coll.get(include=["embeddings", "metadatas", "documents"])
-        
-        embeddings_info = []
-        for i, embedding in enumerate(data['embeddings']):
-            embeddings_info.append({
-                "id": data['ids'][i],
-                "source": data['metadatas'][i].get('source', 'unknown'),
-                "document_snippet": data['documents'][i][:100],  # First 100 chars
-                "embedding_length": len(embedding),
-                "embedding_sample": embedding[:5]  # First 5 dimensions
-            })
-        
-        return {
-            "collection": collection,
-            "total_embeddings": len(embeddings_info),
-            "embeddings": embeddings_info
-        }
-    except Exception as e:
-        logger = logging.getLogger(__name__)
-        logger.error(f"Error: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail="Internal server error")
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)

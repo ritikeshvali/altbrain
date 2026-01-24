@@ -281,28 +281,20 @@ function App() {
               <h2 className="text-lg font-semibold mb-4">Collections</h2>
               <div className="space-y-2">
                 {collections.map(coll => (
-                  <div key={coll.name} className="flex items-center justify-between">
-                    <label className="flex items-center space-x-2 cursor-pointer flex-1">
-                      <input
-                        type="checkbox"
-                        checked={selectedCollections.includes(coll.name)}
-                        onChange={() => toggleCollection(coll.name)}
-                        className="w-4 h-4 text-blue-600"
-                      />
-                      <div>
-                        <div className="font-medium text-sm">{coll.name}</div>
-                        <div className="text-xs text-gray-500">
-                          {coll.document_count} docs
-                        </div>
+                  <label key={coll.name} className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedCollections.includes(coll.name)}
+                      onChange={() => toggleCollection(coll.name)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <div>
+                      <div className="font-medium text-sm">{coll.name}</div>
+                      <div className="text-xs text-gray-500">
+                        {coll.document_count} docs
                       </div>
-                    </label>
-                    <button
-                      onClick={() => viewEmbeddings(coll.name)}
-                      className="ml-2 text-xs bg-purple-500 text-white px-2 py-1 rounded hover:bg-purple-600"
-                    >
-                      View Embeddings
-                    </button>
-                  </div>
+                    </div>
+                  </label>
                 ))}
               </div>
             </div>
