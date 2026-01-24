@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -14,10 +14,16 @@ from gdoc_fetcher import GoogleDocFetcher
 import secrets
 import re
 import logging
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
 load_dotenv()
 
 app = FastAPI(title="AltBrain - Your Second Mind")
+
+# Rate limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
 
 app.add_middleware(
     CORSMiddleware,
@@ -35,6 +41,8 @@ pka = MultiCollectionPKA(api_key)
 router = QueryRouter(api_key)
 gdoc_fetcher = GoogleDocFetcher()
 
+# File size limit (10MB)
+MAX_FILE_SIZE = 10 * 1024 * 1024
 
 class AskRequest(BaseModel):
     query: str
@@ -72,7 +80,12 @@ async def delete_collection(name: str):
 
 
 @app.post("/ingest")
-async def ingest_file(file: UploadFile = File(...), collection: str = Form(...)):
+@limiter.limit("5/minute")
+async def ingest_file(request: Request, file: UploadFile = File(...), collection: str = Form(...)):
+    # File size check
+    if file.size and file.size > MAX_FILE_SIZE:
+        raise HTTPException(status_code=413, detail="File too large (max 10MB)")
+    
     upload_dir = Path("uploads")
     upload_dir.mkdir(exist_ok=True)
     
@@ -95,7 +108,8 @@ async def ingest_file(file: UploadFile = File(...), collection: str = Form(...))
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @app.post("/ask")
-async def ask_question(req: AskRequest):
+@limiter.limit("10/minute")
+async def ask_question(request: Request, req: AskRequest):
     try:
         persistent_results = pka.search_multi_collection(
             query=req.query,
