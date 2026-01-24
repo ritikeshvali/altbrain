@@ -25,9 +25,15 @@ app = FastAPI(title="AltBrain - Your Second Mind")
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 
+allowed_origins = [
+    "http://localhost:3000",
+    "http://localhost:5173",
+    os.getenv("FRONTEND_URL", "http://localhost:3000")
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=allowed_origins,
     allow_methods=["GET", "POST", "DELETE"],
     allow_credentials=False,
     allow_headers=["*"],
