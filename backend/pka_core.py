@@ -8,6 +8,7 @@ from chromadb import Client
 from chromadb.config import Settings
 import chromadb.utils.embedding_functions as embedding_functions
 
+RELEVANCE_THRESHOLD = 0.5
 
 class MultiCollectionPKA:
     def __init__(self, api_key: str, db_path: str = "pka.db"):
@@ -126,7 +127,7 @@ class MultiCollectionPKA:
         conn.commit()
         conn.close()
     
-    def chunk_text(self, text: str, chunk_size: int = 1000, overlap: int = 200) -> List[str]:
+    def chunk_text(self, text: str, chunk_size: int = 1500, overlap: int = 300) -> List[str]:
         chunks = []
         start = 0
         
@@ -202,7 +203,7 @@ class MultiCollectionPKA:
         
         return {"chunks": len(chunks), "collection": collection_name}
     
-    def search_multi_collection(self, query: str, collections: List[str], n_results: int = 5) -> List[Dict]:
+    def search_multi_collection(self, query: str, collections: List[str], n_results: int = 10) -> List[Dict]:
         all_results = []
         
         for coll_name in collections:
@@ -222,8 +223,17 @@ class MultiCollectionPKA:
             except:
                 continue
         
-        all_results.sort(key=lambda x: x['distance'])
-        return all_results[:n_results]
+        # Sort by distance (lower is better) and content length (longer is better)
+        all_results.sort(key=lambda x: (x['distance'], -len(x['content'])))
+        
+        # Filter: keep only relevant results (distance < 0.5 means cosine similarity > 0.5)
+        relevant_results = [r for r in all_results if r['distance'] < self.RELEVANCE_THRESHOLD]
+        
+        # If no relevant results, fall back to top results anyway
+        if not relevant_results:
+            return all_results[:n_results]
+        
+        return relevant_results[:n_results]
     
     def list_documents(self, collection_name: str) -> List[Dict]:
         conn = sqlite3.connect(self.db_path)

@@ -114,7 +114,7 @@ async def ask_question(request: Request, req: AskRequest):
         persistent_results = pka.search_multi_collection(
             query=req.query,
             collections=req.collections,
-            n_results=5
+            n_results=10
         )
         
         temp_context = None
