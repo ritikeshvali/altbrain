@@ -1,0 +1,35 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+
+# Databases
+*.db
+chroma_db/
+
+# Uploads
+uploads/
+
+# Node
+node_modules/
+build/
+.npm
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+echo "logs/" >> .gitignore
+echo ".DS_Store" >> .gitignore
