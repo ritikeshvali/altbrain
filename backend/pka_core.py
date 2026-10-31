@@ -8,7 +8,7 @@ from chromadb import Client
 from chromadb.config import Settings
 import chromadb.utils.embedding_functions as embedding_functions
 
-RELEVANCE_THRESHOLD = 0.5
+RELEVANCE_THRESHOLD = 0.75
 
 class MultiCollectionPKA:
     def __init__(self, api_key: str, db_path: str = "pka.db"):
@@ -226,12 +226,7 @@ class MultiCollectionPKA:
         # Sort by distance (lower is better) and content length (longer is better)
         all_results.sort(key=lambda x: (x['distance'], -len(x['content'])))
         
-        # Filter: keep only relevant results (distance < 0.5 means cosine similarity > 0.5)
-        relevant_results = [r for r in all_results if r['distance'] < self.RELEVANCE_THRESHOLD]
-        
-        # If no relevant results, fall back to top results anyway
-        if not relevant_results:
-            return all_results[:n_results]
+        relevant_results = [r for r in all_results if r['distance'] < RELEVANCE_THRESHOLD]
         
         return relevant_results[:n_results]
     
