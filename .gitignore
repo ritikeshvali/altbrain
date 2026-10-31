@@ -32,4 +32,4 @@ build/
 Thumbs.db
 
 echo "logs/" >> .gitignore
-echo ".DS_Store" >> .gitignore
+.venv/

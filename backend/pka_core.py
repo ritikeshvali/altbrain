@@ -2,13 +2,16 @@ import sqlite3
 from pathlib import Path
 from typing import List, Dict
 from datetime import datetime
-import PyPDF2
+
 from openai import OpenAI
 from chromadb import Client
 from chromadb.config import Settings
 import chromadb.utils.embedding_functions as embedding_functions
+from textproc import chunk_text, extract_text
 
 RELEVANCE_THRESHOLD = 0.75
+CHUNK_SIZE = 1200
+CHUNK_OVERLAP = 200
 
 class MultiCollectionPKA:
     def __init__(self, api_key: str, db_path: str = "pka.db"):
@@ -127,50 +130,10 @@ class MultiCollectionPKA:
         conn.commit()
         conn.close()
     
-    def chunk_text(self, text: str, chunk_size: int = 1500, overlap: int = 300) -> List[str]:
-        chunks = []
-        start = 0
-        
-        while start < len(text):
-            end = start + chunk_size
-            chunk = text[start:end]
-            
-            if end < len(text):
-                last_period = chunk.rfind('.')
-                last_newline = chunk.rfind('\n')
-                break_point = max(last_period, last_newline)
-                
-                if break_point > chunk_size // 2:
-                    chunk = chunk[:break_point + 1]
-                    end = start + break_point + 1
-            
-            chunks.append(chunk.strip())
-            start = end - overlap
-        
-        return chunks
-    
-    def extract_text(self, file_path: str) -> str:
-        path = Path(file_path)
-        
-        if path.suffix.lower() == '.pdf':
-            text = ""
-            with open(file_path, 'rb') as f:
-                pdf_reader = PyPDF2.PdfReader(f)
-                for page in pdf_reader.pages:
-                    text += page.extract_text() + "\n"
-            return text
-        elif path.suffix.lower() in ['.txt', '.md']:
-            return path.read_text(encoding='utf-8')
-        elif path.suffix.lower() in ['.jpg', '.jpeg', '.png']:
-            # Images: store filename as text (OCR would require additional library)
-            return f"Image file: {path.name}"
-        else:
-            raise ValueError(f"Unsupported file type: {path.suffix}")
-    
     def ingest_document(self, file_path: str, collection_name: str) -> Dict:
         path = Path(file_path)
-        text = self.extract_text(file_path)
-        chunks = self.chunk_text(text)
+        text = extract_text(path.name, path.read_bytes())
+        chunks = chunk_text(text, CHUNK_SIZE, CHUNK_OVERLAP)
         
         collection = self.chroma_client.get_collection(
             collection_name,
